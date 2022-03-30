@@ -351,7 +351,81 @@
       
         
           
-            
+            <h3 id="Android系统版本对应API"><a href="#Android系统版本对应API" class="headerlink" title="Android系统版本对应API"></a>Android系统版本对应API</h3><table>
+<thead>
+<tr>
+<th align="left">API版本号</th>
+<th align="right">版本名称（英&#x2F;汉）</th>
+<th align="center">发布时间</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">API 31</td>
+<td align="right">android 12.0 Snow Cone</td>
+<td align="center">2021.10</td>
+</tr>
+<tr>
+<td align="left">API 30</td>
+<td align="right">android 11.0 R</td>
+<td align="center">2020.9</td>
+</tr>
+<tr>
+<td align="left">API 29</td>
+<td align="right">android 10.0 Q</td>
+<td align="center">2019.8</td>
+</tr>
+<tr>
+<td align="left">API 28</td>
+<td align="right">android 9.0 Pie&#x2F;馅饼</td>
+<td align="center">2018.8</td>
+</tr>
+<tr>
+<td align="left">API 27</td>
+<td align="right">android 8.1 Oreo&#x2F;奥利奥</td>
+<td align="center">2017.12</td>
+</tr>
+<tr>
+<td align="left">API 26</td>
+<td align="right">android 8.0 Oreo&#x2F;奥利奥</td>
+<td align="center">2017.8</td>
+</tr>
+<tr>
+<td align="left">API 25</td>
+<td align="right">android 7.1 Nougat&#x2F;牛轧糖</td>
+<td align="center">2016.10</td>
+</tr>
+<tr>
+<td align="left">API 24</td>
+<td align="right">android 7.0 Nougat&#x2F;牛轧糖</td>
+<td align="center">2016.8</td>
+</tr>
+<tr>
+<td align="left">API 23</td>
+<td align="right">android 6.0 Marshmallow&#x2F;棉花糖</td>
+<td align="center">2015.8</td>
+</tr>
+<tr>
+<td align="left">API 22</td>
+<td align="right">android 5.1 Lollipop&#x2F;棒棒糖</td>
+<td align="center">2014.12</td>
+</tr>
+<tr>
+<td align="left">API 21</td>
+<td align="right">android 5.0 Lollipop&#x2F;棒棒糖</td>
+<td align="center">2014.10</td>
+</tr>
+<tr>
+<td align="left">API 20</td>
+<td align="right">android 4.4W KitKat&#x2F;奇巧巧克力棒</td>
+<td align="center">2013底</td>
+</tr>
+<tr>
+<td align="left">API 19</td>
+<td align="right">android 4.4 KitKat&#x2F;奇巧巧克力棒</td>
+<td align="center">2013.11</td>
+</tr>
+</tbody></table>
+
           
         
       
@@ -399,7 +473,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/29/Android-Context%E5%88%86%E6%9E%90/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/29/Android-Context%E8%A7%A3%E6%9E%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -418,7 +492,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2022/03/29/Android-Context%E5%88%86%E6%9E%90/" itemprop="url">Android Context分析</a></h1>
+                <a class="post-title-link" href="/2022/03/29/Android-Context%E8%A7%A3%E6%9E%90/" itemprop="url">Android Context分析</a></h1>
         
 
         <div class="post-meta">
@@ -440,6 +514,28 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -469,10 +565,17 @@
 
       
         
-          
-            <p><a href=""></a></p>
-
-          
+          <h3 id="Context的使用"><a href="#Context的使用" class="headerlink" title="Context的使用"></a>Context的使用</h3><p>对于Context的使用大家并不陌生，因为在Android开发的方方面面都需要使用到Context，比如说是：</p>
+<p>startActivity()：启动Activity、getResource():获取资源、getColor():获取色值、startService():启动服务</p>
+<p>正是由于Context是如此的重要，所以我们在很多情况下比如自定义View，都需要传入一个Context对象才能满足编码需求，所以又牵扯出了内存泄漏等问题（比如传入了Activity当成Context，在页面生命周期已经结束时由于某些耗时等操作导致引用仍被持有导致无法及时被回收）。</p>
+<p>既然Context是如此重要，那我们就有必要对它做个深入了解。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/03/29/Android-Context%E8%A7%A3%E6%9E%90/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -767,12 +870,7 @@
       
         
           <p>java的代理模式是很常见的一种设计模式，记录一下我的理解。<a target="_blank" rel="noopener" href="https://github.com/HomerLian/DesignMode/tree/master/ProxyMode">源码</a></p>
-<pre><code>代理模式主要的思想是将委托类（被代理类）和真正使用委托类逻辑的类做一个解耦。
-主要有2个好处：
-    1.保护目标对象：被代理类无需对外公开，外部通信仅通过代理类进行沟通
-    2.增强目标对象：可以在不改动被代理类的情况下对所需功能做增强，外部调用方对此也无感知
-</code></pre>
-<p>不考虑很多根据业务场景的分类（比如远程代理、虚拟代理、保护代理等等等…），我们只考虑编码实现方案那就分为2种：</p>
+<p>代理模式主要的思想是将委托类（被代理类）和真正使用委托类逻辑的类做一个解耦。<br>主要有2个好处：<br>    1.保护目标对象：被代理类无需对外公开，外部通信仅通过代理类进行沟通<br>    2.增强目标对象：可以在不改动被代理类的情况下对所需功能做增强，外部调用方对此也无感知<br>不考虑很多根据业务场景的分类（比如远程代理、虚拟代理、保护代理等等等…），我们只考虑编码实现方案那就分为2种：</p>
 <ol>
 <li>静态代理</li>
 <li>动态代理</li>
