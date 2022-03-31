@@ -105,7 +105,7 @@
 <meta property="og:image" content="http://example.com/2022/03/29/Android-Context%E8%A7%A3%E6%9E%90/Application%E7%9A%84ContextImpl%E5%88%9B%E5%BB%BA%E6%B5%81%E7%A8%8B.jpg">
 <meta property="og:image" content="http://example.com/2022/03/29/Android-Context%E8%A7%A3%E6%9E%90/Activity%E7%9A%84ContextImpl%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B.jpg">
 <meta property="article:published_time" content="2022-03-28T17:55:47.000Z">
-<meta property="article:modified_time" content="2022-03-31T09:53:41.650Z">
+<meta property="article:modified_time" content="2022-03-31T10:09:12.438Z">
 <meta property="article:author" content="lianwenhong">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/2022/03/29/Android-Context%E8%A7%A3%E6%9E%90/Context%E7%B1%BB%E5%85%B3%E7%B3%BB%E5%9B%BE.jpg">
@@ -496,19 +496,19 @@
 <p>而使用Context导致内存泄漏的情况往往是将Activity这种相对短生命周期的对象传给其他对象使用，可能其他对象中有耗时操作导致Activity无法被及时回收。还有一个典型的场景就是在Android开发中往往在设计很多单例的时候需要传入一个Context，如果此时传入的是Activity那就会造成内存泄漏。因为我们知道通常单例方法是static，其涉及的生命周期是整个进程，所以为了解决这个问题可以考虑传入Application的Context来解决这个问题。</p>
 <h4 id="Context的使用："><a href="#Context的使用：" class="headerlink" title="Context的使用："></a>Context的使用：</h4><p>在Android开发中在一个Activity中获取Context的方法有很多种：</p>
 <ul>
-<li><p>**getApplication()**：返回Application对象</p>
+<li><p>getApplication()：返回Application对象</p>
 </li>
-<li><p>**getApplicationContext()**：与getApplication()返回同一个对象，只不过其返回的是Context类型，java中向上转型必然会被阉割掉一些子类独有的方法</p>
+<li><p>getApplicationContext()：与getApplication()返回同一个对象，只不过其返回的是Context类型，java中向上转型必然会被阉割掉一些子类独有的方法</p>
 </li>
-<li><p>**getBaseContext()**：返回Activity的ContextImpl对象（Application.getBaseContext()：返回Application的ContextImpl对象）</p>
+<li><p>getBaseContext()：返回Activity的ContextImpl对象（Application.getBaseContext()：返回Application的ContextImpl对象）</p>
 </li>
-<li><p><strong>Activity.this</strong>：返回Activity本身</p>
+<li><p>Activity.this：返回Activity本身</p>
 <p>  正是ContextImpl被外层装饰器包装了一下才形成了Context不同功能的拓展。</p>
 </li>
 </ul>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Context淡化了Android进程的概念，其提供了一个应用的运行环境。Android中它无处不在，开发者可以通过它调用一系列的系统方法比如获取资源，打开页面，打开服务等等。</p>
 <p>其实现上采用了装饰者模式，Activity、Application、Service等都是装饰类，当开发者使用这些装饰者作为Context来使用的时候，其实真正的实现逻辑是在ContextImpl类中。</p>
-<p>在Context的使用中要十分注意避免出现内存泄漏问题。</p>
+<p>在Context的使用中要十分注意避免出现内存泄漏问题。_</p>
 <hr>
 
       
