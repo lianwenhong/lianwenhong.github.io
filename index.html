@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next muse use-motion" lang="zh-Hans">
+<html class="theme-next mist use-motion" lang="zh-Hans">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -108,7 +108,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '',
-    scheme: 'Muse',
+    scheme: 'Mist',
     sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
     tabs: true,
@@ -249,9 +249,43 @@
       
 
       
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
     </ul>
   
 
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
   
 </nav>
 
@@ -280,12 +314,1175 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/18/binder%EF%BC%88%E4%B8%80%EF%BC%89Linux%E5%BF%85%E5%A4%87%E7%9F%A5%E8%AF%86%E7%AF%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="连文弘的学习笔记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/04/18/binder%EF%BC%88%E4%B8%80%EF%BC%89Linux%E5%BF%85%E5%A4%87%E7%9F%A5%E8%AF%86%E7%AF%87/" itemprop="url">linux名词解释</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2022-04-18T11:56:05Z">
+                2022-04-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/04/18/binder%EF%BC%88%E4%B8%80%EF%BC%89Linux%E5%BF%85%E5%A4%87%E7%9F%A5%E8%AF%86%E7%AF%87/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/04/18/binder（一）Linux必备知识篇/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>对linux操作系统中某些概念做简单预习，旨在为后续Android学习提供前提铺垫。例如学习binder、锁机制等等。</p>
+<h3 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h3><p>Linux操作系统将运行中的程序成为进程。而Linux内核控制这Linux操作系统如何管理运行在系统上的所有进程。</p>
+<p><strong>内核创建了第一个进程（init进程）来启动系统上所有其他进程。</strong> 当内核启动时，他会将init进程加载到虚拟内存中。内核在启动任何进程时都会在虚拟内存中为该进程分配一块专有区域用于存储该进程用到的数据和代码。</p>
+<h3 id="进程隔离"><a href="#进程隔离" class="headerlink" title="进程隔离"></a>进程隔离</h3><ul>
+<li>Linux中为每一个进程分配内存时都将内存划分为2部分：<strong>用户空间</strong>和<strong>内核空间</strong>。</li>
+<li>Linux中一个进程在运行时<strong>cpu的运行状态是用特权等级来区分</strong>，以arm64为例分为4个等级，从低到高分别是EL0～EL3。我们常接触的等级是EL0和EL1，<strong>EL0为用户态，EL1为内核态。当cpu处于用户态时不能访问内核空间的数据（除非通过系统调用将当前cpu状态转入内核态），但是反之如果cpu处于内核态时可以访问用户空间也可以访问内核空间。</strong></li>
+<li>Linux中每个进程之间是<strong>相互隔离</strong>的，进程之间不能直接进行通信，这样保证了进程的安全性。</li>
+<li>2个用户进程想要相互通信必须借助内核空间来完成，大概原理就是在内核空间中开辟出一块内存缓存区域，各个进程通过操作这块区域达到通信的目的。这就涉及到了用户进程想要访问内核空间的情况，此时只能通过<strong>系统调用（例如copy_from_user就是一个系统调用）</strong> 使cpu从用户态转入内核态，这样该进程就能访问内核空间的数据了，其他进程也通过这种方式来访问该内存缓存就能达到通信的目的。<strong>这也是用户进程访问内核空间的唯一方式。</strong> 这种机制保证了系统内核的安全和稳定，确保用户进程不能随随便便地操作内核空间给内核空间造成未知安全隐患。</li>
+</ul>
+<h3 id="如何做到进程隔离？如何在各个进程共享内核空间？"><a href="#如何做到进程隔离？如何在各个进程共享内核空间？" class="headerlink" title="如何做到进程隔离？如何在各个进程共享内核空间？"></a>如何做到进程隔离？如何在各个进程共享内核空间？</h3><img src="/2022/04/18/binder%EF%BC%88%E4%B8%80%EF%BC%89Linux%E5%BF%85%E5%A4%87%E7%9F%A5%E8%AF%86%E7%AF%87/Linux%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84.jpeg" class="" title="Linux内存映射">
+
+<ul>
+<li>要将虚拟地址映射到物理内存上需要用到密码本来翻译虚拟地址</li>
+<li>每个进程中有2个密码本，一个是用户空间密码本（task_struct）中，一个是内核空间密码本（swapper_pg_dir），用户空间密码本为进程私有，每个进程都不一样，内核空间密码本为各个进程公用的</li>
+<li>当访问用户空间时使用task_struct这个密码本，由于每个进程都不一样，所以最终映射到的物理内存地址就是不一样的，别的进程永远都不可能映射到本进程的相对应的用户空间物理内存。</li>
+<li>当访问内核空间时使用swapper_pg_dir这个密码本，因为所有进程都是公用的一个密码本所以最终映射的物理内存是一样的。</li>
+</ul>
+<p>图中是简化过方便理解的映射，真实情况中物理内存地址极可能是离散的而不是这样连续的内存片段。</p>
+<h3 id="设备文件"><a href="#设备文件" class="headerlink" title="设备文件"></a>设备文件</h3><blockquote>
+<p>在Linux中，一切皆对象。也就是说皆可以通过一套统一的接口来控制。</p>
+</blockquote>
+<p>Linux系统将硬件设备当成特殊的文件，称之为<strong>设备文件</strong>。例如键盘、鼠标、硬盘等等在Linux中都当成文件来处理，Linux提供了一套统一的操作接口来让开发者操作它们。<br>设备文件分为3类：</p>
+<ul>
+<li><strong>字符设备</strong>：如键盘。提供连续数据流（字节或字符），应用可顺序读取，但<strong>不支持随机存取</strong>。</li>
+<li><strong>块设备</strong>：如硬盘等存储设备。应用<strong>可随机存取</strong>设备上的任意位置的数据。</li>
+<li><strong>网络设备</strong> ：指采用数据包发送和接受数据的设备，包括各种网卡和一个特殊的回环设备。这种回环设备允许Linux使用常见的网络编程协议同自身通信。</li>
+</ul>
+<h3 id="设备节点："><a href="#设备节点：" class="headerlink" title="设备节点："></a>设备节点：</h3><p>Linux系统会将所有的设备文件（网络设备除外）在&#x2F;dev目录下生成对应的<strong>设备节点</strong>，生成的<strong>设备节点可以理解为设备文件的操作入口，我们可以Linux提供的统一操作接口（如open()、read()、write()、close()…）来操作这些设备节点来达到对设备的操作。</strong> 这样大大的降低了应用程序操作设备的复杂度。</p>
+<p>网络设备之所以不和其他设备一样是因为网络设备的工作是采用报文传输，无法做到和其他设备统一接口，所以并未在&#x2F;dev下生成设备节点。</p>
+<h3 id="虚拟设备"><a href="#虚拟设备" class="headerlink" title="虚拟设备"></a>虚拟设备</h3><p>虚拟设备是Linux动态虚拟出来的一种设备，Linux会为其分配内存，但其并不存在真实的物理设备。为了进行某些功能的现实化，让操作更加具象化。这就使得用户能像操作一个真实设备一样去做想要的操作。举个例子就像app中的小键盘它不是一个真实的物理键盘，但是你能像操作一个真实物理键盘一样打字。</p>
+<p><strong>Android中的binder就是一个虚拟设备，它的设备节点是&#x2F;dev&#x2F;binder</strong></p>
+<h3 id="设备号"><a href="#设备号" class="headerlink" title="设备号"></a>设备号</h3><p>每个设备节点都包含了2个设备号：</p>
+<ul>
+<li>主设备号：表示<strong>设备类型</strong>，也表示与其关联的设备驱动程序，相同设备号所关联的设备驱动是同一个</li>
+<li>次设备号：表示某种设备类型下的特定设备，例如有多个usb，可以通过次设备号查找usb0，usb1</li>
+</ul>
+<p>可以通俗理解为：主设备号是你家单元号，次设备号是你家门牌号</p>
+<h3 id="设备驱动"><a href="#设备驱动" class="headerlink" title="设备驱动"></a>设备驱动</h3><p><strong>设备驱动程序是一种可以使系统和设备进行交互的特殊程序</strong>，相当于硬件的接口，系统只有通过驱动程序中的接口才能控制设备的工作。加入某设备的驱动程序未能正确工作则系统也无法正确操作设备。因此，驱动程序是设备和系统之间的桥梁。</p>
+<h3 id="设备驱动的工作原理"><a href="#设备驱动的工作原理" class="headerlink" title="设备驱动的工作原理"></a>设备驱动的工作原理</h3><p>Linux中访问&#x2F;dev目录下的设备节点时，Linux内核会把这些对设备节点的操作通过主设备号找到对应的驱动程序，然后将操作映射到驱动程序中的对应代码上，然后驱动程序可根据次设备号执行对指定设备的操作。<br>Linux内核有两种方法来将某个设备驱动插入内核：</p>
+<ol>
+<li>将驱动程序代码之间编译进内核<br>早前这是驱动程序进入内核的唯一方式，这种方式会导致内核代码要重新编译。每次添加一个新设备都得重新编译一次内核代码，随着设备不断增加这种方式就变得很低效，所以产生了第二种方式</li>
+<li>将驱动程序编译为驱动模块再动态插入内核<br>因为第1种方式的低效，开发者提出了<strong>驱动模块</strong>的概念。通过将驱动程序编译成驱动模块，然后在使用的时候将驱动模块动态插入到运行中的系统内核中而无需重新编译内核，当不再使用时也可以将驱动模块从运行中的系统内核中移除。这样的好处一个是简化和扩展了硬件设备在Linux上的使用，另一个是使内核不再臃肿。</li>
+</ol>
+<img src="/2022/04/18/binder%EF%BC%88%E4%B8%80%EF%BC%89Linux%E5%BF%85%E5%A4%87%E7%9F%A5%E8%AF%86%E7%AF%87/Linux%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B.jpg" class="" title="Linux设备驱动加载流程">
+
+<p><strong>Android中的binder驱动就是以这种方式插入系统内核的。</strong></p>
+<p>所以在Android中打开&#x2F;dev&#x2F;binder设备节点时，会执行binder驱动中的相关逻辑。后续的操作都会映射到binder驱动中。</p>
+<p>参考文献：<br><a target="_blank" rel="noopener" href="https://baijiahao.baidu.com/s?id=1726920239983776761&wfr=spider&for=pc">初识Linux命令行与shell</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qianghaohao/article/details/79058121?utm_term=linux%E9%A9%B1%E5%8A%A8%E7%A8%8B%E5%BA%8F%E6%96%87%E4%BB%B6&utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~all~sobaiduweb~default-1-79058121&spm=3001.4430">Linux设备驱动程序和设备文件</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_38880380/article/details/79227760">Linux下编写和加载 .ko 文件（驱动模块文件）</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/484393580">linux内存管理（一）- 虚拟地址和物理地址</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/16/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%8E%9F%E7%90%86-ClassLoader%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="连文弘的学习笔记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/04/16/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%8E%9F%E7%90%86-ClassLoader%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/" itemprop="url">java类加载原理(ClassLoader工作原理)</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2022-04-15T18:51:47Z">
+                2022-04-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/04/16/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%8E%9F%E7%90%86-ClassLoader%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/04/16/java类加载原理-ClassLoader工作原理/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="什么是类加载"><a href="#什么是类加载" class="headerlink" title="什么是类加载"></a>什么是类加载</h2><p>在java开发中我们在.java文件中编写代码，之后通过javac指令编译成.class文件。当然如果是编写的Android应用后续又会经过dx工具将.class变为.dex文件(这不是本章重点)。</p>
+<p>当javac编译成.class文件之后，它是以文件的形式存在的。比如MainActivity.java -&gt; javac -&gt; MainActivity.class。当我们程序中要使用MainActivity的时候，肯定要将这个文件加载到内存中来变成一个类对象这样才能去使用它。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/04/16/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%8E%9F%E7%90%86-ClassLoader%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/14/Android%E6%BA%90%E7%A0%81%E5%B0%8F%E8%AE%B0-App%E7%9A%84ClassLoader/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="连文弘的学习笔记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/04/14/Android%E6%BA%90%E7%A0%81%E5%B0%8F%E8%AE%B0-App%E7%9A%84ClassLoader/" itemprop="url">Android源码解析-App的ClassLoader</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2022-04-14T15:36:02Z">
+                2022-04-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/04/14/Android%E6%BA%90%E7%A0%81%E5%B0%8F%E8%AE%B0-App%E7%9A%84ClassLoader/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/04/14/Android源码小记-App的ClassLoader/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="Android中的默认类加载器："><a href="#Android中的默认类加载器：" class="headerlink" title="Android中的默认类加载器："></a>Android中的默认类加载器：</h2><p>Android虚拟机就是一个特殊的JVM，不管是以前的dalvik还是现在的ART。所以其类加载流程一样遵循jvm的规则（双亲委托机制）</p>
+<p>如果对jvm的类加载流程不熟悉可以阅读另一篇文章：<a target="_blank" rel="noopener" href="http://lianwenhong.top/2022/04/16/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%8E%9F%E7%90%86-ClassLoader%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/#more">java类加载原理(ClassLoader工作原理)</a></p>
+<p>Android类加载器之相较于Java类加载器的最大区别在于：</p>
+<p>java类加载器是从某个目录中去直接加载.class文件或者是从目录下的zip、jar包等归档文件中加载.class文件</p>
+<p>而Android类加载器是从某个目录下去直接加载.dex文件或者是从目录下的zip、jar、apk等文件中的.dex文件中去加载.class文件，如果不是.dex文件的话加载不了。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/04/14/Android%E6%BA%90%E7%A0%81%E5%B0%8F%E8%AE%B0-App%E7%9A%84ClassLoader/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/14/Android%E6%BA%90%E7%A0%81%E5%B0%8F%E8%AE%B0-LoadedApk/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="连文弘的学习笔记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/04/14/Android%E6%BA%90%E7%A0%81%E5%B0%8F%E8%AE%B0-LoadedApk/" itemprop="url">Android源码小记-LoadedApk</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2022-04-14T15:35:23Z">
+                2022-04-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/04/14/Android%E6%BA%90%E7%A0%81%E5%B0%8F%E8%AE%B0-LoadedApk/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/04/14/Android源码小记-LoadedApk/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>文章基于API25分析，源码地址：<a target="_blank" rel="noopener" href="http://androidxref.com/7.1.1_r6/">http://androidxref.com/7.1.1_r6/</a></p>
+<h2 id="什么是LoadedApk"><a href="#什么是LoadedApk" class="headerlink" title="什么是LoadedApk"></a>什么是LoadedApk</h2><p>看下源码中对LoadedApk的注释：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Local state maintained about a currently loaded .apk.</span><br><span class="line"> * @hide</span><br><span class="line"> */</span><br><span class="line">public final class LoadedApk &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>翻译过来就是维护当前加载的 .apk 的本地状态。大白话讲LoadedApk就是一个.apk文件在内存中的表现形式。</p>
+<blockquote>
+<p>换句话说LoadedApk是apk安装文件在内存中的数据，可以在LoadedApk中得到apk文件中的代码、资源文件、Activity、Service组件、manifest配置文件等等信息，这些都封装在LoadedApk这个类中。</p>
+</blockquote>
+<p>我们知道应用启动是通过Zygote进程fork出一个应用进程之后调用ActivityThread.main()方法才走到应用自身。</p>
+<p><strong>1个apk应用对应1个ActivityThread</strong></p>
+<p><strong>1个apk应用也对应1个LoadedApk</strong></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/04/14/Android%E6%BA%90%E7%A0%81%E5%B0%8F%E8%AE%B0-LoadedApk/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/13/Android%E4%B8%A4%E7%A7%8Dso%E5%8A%A0%E8%BD%BD%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%8F%8Aso%E7%83%AD%E4%BF%AE%E5%A4%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="连文弘的学习笔记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/04/13/Android%E4%B8%A4%E7%A7%8Dso%E5%8A%A0%E8%BD%BD%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%8F%8Aso%E7%83%AD%E4%BF%AE%E5%A4%8D/" itemprop="url">System.load()与System.loadLibrary()实现及so热修复</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2022-04-13T09:40:10Z">
+                2022-04-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/04/13/Android%E4%B8%A4%E7%A7%8Dso%E5%8A%A0%E8%BD%BD%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%8F%8Aso%E7%83%AD%E4%BF%AE%E5%A4%8D/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/04/13/Android两种so加载方式实现及so热修复/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>文章基于API25分析，源码地址：<a target="_blank" rel="noopener" href="http://androidxref.com/7.1.1_r6/">http://androidxref.com/7.1.1_r6/</a></p>
+<h3 id="ClassLoader简单复习（必要前提）"><a href="#ClassLoader简单复习（必要前提）" class="headerlink" title="ClassLoader简单复习（必要前提）"></a>ClassLoader简单复习（必要前提）</h3><p>在分析System类之前，先简单复习一下ClassLoader的类加载机制。</p>
+<img src="/2022/04/13/Android%E4%B8%A4%E7%A7%8Dso%E5%8A%A0%E8%BD%BD%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%8F%8Aso%E7%83%AD%E4%BF%AE%E5%A4%8D/ClassLoader%E7%B1%BB%E7%BB%93%E6%9E%84%E5%85%B3%E7%B3%BB%E5%9B%BE%E4%BB%A5%E5%8F%8A%E6%9B%BF%E6%8D%A2dexElements%E5%AE%9E%E7%8E%B0%E7%83%AD%E4%BF%AE%E5%A4%8D%E5%8E%9F%E7%90%86.jpg" class="" title="ClassLoader类结构关系图以及替换dexElements实现热修复原理">
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/04/13/Android%E4%B8%A4%E7%A7%8Dso%E5%8A%A0%E8%BD%BD%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%8F%8Aso%E7%83%AD%E4%BF%AE%E5%A4%8D/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/13/android%E7%83%AD%E4%BF%AE%E5%A4%8D%E5%B0%8F%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="连文弘的学习笔记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/04/13/android%E7%83%AD%E4%BF%AE%E5%A4%8D%E5%B0%8F%E8%AE%B0/" itemprop="url">android热修复小记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2022-04-12T17:55:47Z">
+                2022-04-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/04/13/android%E7%83%AD%E4%BF%AE%E5%A4%8D%E5%B0%8F%E8%AE%B0/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/04/13/android热修复小记/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="认识热修复"><a href="#认识热修复" class="headerlink" title="认识热修复"></a>认识热修复</h2><p>由于Android应用程序需要手动安装apk包的特性，如果应用发布上线之后发现有bug只能再下载新包来修复。这样一来影响用户体验，二来是否下载新包的主动权在用户，所以开发者对bug无法把控。</p>
+<h2 id="主流热修复方案"><a href="#主流热修复方案" class="headerlink" title="主流热修复方案"></a>主流热修复方案</h2><ol>
+<li>腾讯Tinker</li>
+<li>腾讯QZone</li>
+<li>阿里sophix</li>
+<li>美团Robust</li>
+</ol>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2022/04/13/android%E7%83%AD%E4%BF%AE%E5%A4%8D%E5%B0%8F%E8%AE%B0/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/12/gradle%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="连文弘的学习笔记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022/04/12/gradle%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/" itemprop="url">gradle插件开发</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2022-04-11T21:50:37Z">
+                2022-04-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/04/12/gradle%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/04/12/gradle插件开发/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <hr>
+<h3 id="gradle插件开发的方式"><a href="#gradle插件开发的方式" class="headerlink" title="gradle插件开发的方式"></a>gradle插件开发的方式</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">apply plugin: &#x27;com.android.application&#x27;</span><br><span class="line">apply plugin: &#x27;com.android.library&#x27;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Build script脚本</td>
+<td>把插件写在build.gradle文件中，一般用于简单逻辑，作用范围为build.gradle文件</td>
+</tr>
+<tr>
+<td>buildSrc目录</td>
+<td>将插件源代码放在buildSrc&#x2F;src&#x2F;main&#x2F;中，作用范围为该项目</td>
+</tr>
+<tr>
+<td>独立项目</td>
+<td>一个独立的java项目&#x2F;模块,可将文件发布到仓库(jcenter)，使其他项目可以方便引入</td>
+</tr>
+</tbody></table>
+<hr>
+<p>任何可以运行在jvm中的语言都能用来开发gradle插件，比如groovy最终编译产物也是.class文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1、aapt 打包资源文件 阶段</span><br><span class="line">2、aidl 转 java 文件 阶段</span><br><span class="line">3、Java 编译（Compilers）生成.class 文件 阶段</span><br><span class="line">4、dex（生成 dex 文件）阶段</span><br><span class="line">5、apkbuilder（生成未签名 apk）阶段</span><br><span class="line">6、Jarsigner（签名）阶段</span><br><span class="line">7、zipalign（对齐） 阶段</span><br><span class="line">[https://juejin.cn/post/6844903850453762055#heading-6](https://juejin.cn/post/6844903850453762055#heading-6)</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/04/02/Android-Resource%E8%A7%A3%E6%9E%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.jpeg">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -346,6 +1543,17 @@
           
 
           
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/04/02/Android-Resource%E8%A7%A3%E6%9E%90/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/04/02/Android-Resource解析/" itemprop="commentCount"></span>
+                </a>
+              </span>
             
           
 
@@ -426,7 +1634,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.jpeg">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -487,6 +1695,17 @@
           
 
           
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/03/29/Android%E7%89%88%E6%9C%AC%E5%8F%B7%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/03/29/Android版本号对应关系/" itemprop="commentCount"></span>
+                </a>
+              </span>
             
           
 
@@ -636,12 +1855,12 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/29/Android-Context%E8%A7%A3%E6%9E%90/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/29/Android%E6%BA%90%E7%A0%81%E5%B0%8F%E8%AE%B0-Context%E8%A7%A3%E6%9E%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.jpeg">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -655,7 +1874,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2022/03/29/Android-Context%E8%A7%A3%E6%9E%90/" itemprop="url">Android Context分析</a></h1>
+                <a class="post-title-link" href="/2022/03/29/Android%E6%BA%90%E7%A0%81%E5%B0%8F%E8%AE%B0-Context%E8%A7%A3%E6%9E%90/" itemprop="url">Android源码小记-Context解析</a></h1>
         
 
         <div class="post-meta">
@@ -703,6 +1922,17 @@
 
           
             
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2022/03/29/Android%E6%BA%90%E7%A0%81%E5%B0%8F%E8%AE%B0-Context%E8%A7%A3%E6%9E%90/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2022/03/29/Android源码小记-Context解析/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
           
 
           
@@ -734,316 +1964,7 @@
 <p>既然Context是如此重要，那我们就有必要对它做个深入了解。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2022/03/29/Android-Context%E8%A7%A3%E6%9E%90/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/25/Android%E4%B8%AD%E5%A4%9A%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1%EF%BC%9AHandler%E7%9A%84%E7%90%86%E8%A7%A3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="连文弘的学习笔记">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/03/25/Android%E4%B8%AD%E5%A4%9A%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1%EF%BC%9AHandler%E7%9A%84%E7%90%86%E8%A7%A3/" itemprop="url">Android中多线程通信：Handler的理解</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2022-03-24T23:43:42Z">
-                2022-03-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Android/" itemprop="url" rel="index">
-                    <span itemprop="name">Android</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>Android中Handler在我理解主要是为了解决线程间通信。</p>
-<h2 id="Handler机制组成"><a href="#Handler机制组成" class="headerlink" title="Handler机制组成"></a>Handler机制组成</h2><pre><code>使用Android的Handler机制主要要了解几个类：
-</code></pre>
-<ul>
-<li><strong>Looper</strong>：<br>  一个线程对应一个或者0个Looper，主线程在ActivityThread的时候会默认创建一个Looper，非主线程中需要先通过Looper.prepare()创建，并且通过Looper.loop()开启。</li>
-<li><strong>Message</strong>：<br>  线程间通信的消息载体，Handler利用Message来携带信息给另一个线程，内部包含一个叫sPool的单向链表结构消息缓存池，使用享元模式实现消息的复用防止内存抖动。</li>
-<li><strong>MessageQueue</strong>：<br>  消息队列，与Looper一一对应，每个Looper中维护一个消息队列，此消息队列是一个时间优先级队列，内部是一个单向链表</li>
-<li><strong>Handler</strong>：<br>  有点像是一个工厂里的机器人，不断从这个线程中发送Message或者是Runnable给另一个线程，并放入MessageQueue中</li>
-</ul>
-<p>所以以上是Handler机制的主要4个要素，每个要素之间的关系很清晰明了：<strong>Handler为生产者，Looper为消费者，MessageQueue为容器，而Message为具体的消息载体。</strong></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2022/03/25/Android%E4%B8%AD%E5%A4%9A%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1%EF%BC%9AHandler%E7%9A%84%E7%90%86%E8%A7%A3/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/25/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="连文弘的学习笔记">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022/03/25/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/" itemprop="url">设计模式-代理模式</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2022-03-24T22:35:19Z">
-                2022-03-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>java的代理模式是很常见的一种设计模式，记录一下我的理解。<a target="_blank" rel="noopener" href="https://github.com/HomerLian/DesignMode/tree/master/ProxyMode">源码</a></p>
-<p>代理模式主要的思想是将委托类（被代理类）和真正使用委托类逻辑的类做一个解耦。<br>主要有2个好处：<br>    1.保护目标对象：被代理类无需对外公开，外部通信仅通过代理类进行沟通<br>    2.增强目标对象：可以在不改动被代理类的情况下对所需功能做增强，外部调用方对此也无感知<br>不考虑很多根据业务场景的分类（比如远程代理、虚拟代理、保护代理等等等…），我们只考虑编码实现方案那就分为2种：</p>
-<ol>
-<li>静态代理</li>
-<li>动态代理</li>
-</ol>
-<p>对于真正使用代理的场景有很多，例如Android中Resource与ResourceImpl、Retrofit中获取api接口、Collections.synchronizedList实现线程安全数组等场景。这里暂时不展开说明，如有兴趣再行记录。</p>
-<p>举个生活中的例子：</p>
-<p>假设你爸让你帮他买张机票此时你想在你爸不知情的情况下赚点零花钱。你上网查携程上的票价是1000元，你跟你爸说这张票1500，这样你就从中赚取了500零花钱。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2022/03/25/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/#more" rel="contents">
+            <a class="btn" href="/2022/03/29/Android%E6%BA%90%E7%A0%81%E5%B0%8F%E8%AE%B0-Context%E8%A7%A3%E6%9E%90/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1084,6 +2005,10 @@
   </section>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
+  </nav>
+
 
 
           </div>
@@ -1115,7 +2040,7 @@
       <section class="site-overview sidebar-panel sidebar-panel-active">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="/images/avatar.gif"
+               src="/images/avatar.jpeg"
                alt="" />
           <p class="site-author-name" itemprop="name"></p>
            
@@ -1127,7 +2052,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1197,7 +2122,7 @@
 <div class="theme-info">
   主题 -
   <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/iissnan/hexo-theme-next">
-    NexT.Muse
+    NexT.Mist
   </a>
 </div>
 
@@ -1295,6 +2220,14 @@
 
   
 
+    
+      <script id="dsq-count-scr" src="https://your-disqus-shortname.disqus.com/count.js" async></script>
+    
+
+    
+
+  
+
 
 
 
@@ -1310,14 +2243,327 @@
 
 
 
-  
-
-
-
 
 
 
   
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
 
 
 
