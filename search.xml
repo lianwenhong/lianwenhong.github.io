@@ -54,6 +54,39 @@
       </categories>
   </entry>
   <entry>
+    <title>Android小知识-HandlerThread</title>
+    <url>/2022/07/27/Android%E5%B0%8F%E7%9F%A5%E8%AF%86-HandlerThread/</url>
+    <content><![CDATA[<h3 id="线程间通信常规操作"><a href="#线程间通信常规操作" class="headerlink" title="线程间通信常规操作"></a>线程间通信常规操作</h3><p>Android线程间通信主要方式是使用Handler相信没有一个做Android的人不知道。<br>如果对Handler还不了解可以回顾一下我以前的文章：<a href="http://lianwenhong.top/2022/03/25/Android%E4%B8%AD%E5%A4%9A%E7%BA%BF%E7%A8%8B%E9%80%9A%E4%BF%A1%EF%BC%9AHandler%E7%9A%84%E7%90%86%E8%A7%A3/">Android中多线程通信：Handler的理解</a></p>
+<p>注： 后续称HandlerThread创建的线程为<strong>HandlerThread线程</strong>，调用HandlerThread.getLooper()的线程成为<strong>调用线程</strong></p>
+<h3 id="HandlerThread用法"><a href="#HandlerThread用法" class="headerlink" title="HandlerThread用法"></a>HandlerThread用法</h3><p>如果你在开发android项目时想实现一个带消息队列的子线程，那我建议你不要重复造轮子，你可以看看HandlerThread这个类，它就是系统封装好的一个很好用的带消息队列的子线程。<br>HandlerThread能解决以下几件事情：</p>
+<ol>
+<li>实现带消息队列的子线程，可用它来做耗时操作。</li>
+<li>可实现线程间通信。</li>
+<li>可实现线程的线程的复用避免了线程频繁创建销毁带来的开销。</li>
+</ol>
+<p><strong>简单概括就是HandlerThread继承自Thread，在HandlerThread这个线程启动的时候其内部run()方法中创建并初始化了该线程的Looper，并且在初始化Looper和使用Looper的阶段通过synchronized同步锁的方式保证了Looper的准确性。该类通过系统的消息轮训器Looper来实现消息队列以及实现线程的复用，其内部也提供了关闭子线程的方法以便开发者可以在自己想要的场景下开启子线程或者关闭子线程。</strong></p>
+<p>其实HandlerThread只是系统对子线程开发需求的一个小封装而已，但是我个人觉得挺实用的。先来看它的使用方式：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class MainActivity extends AppCompatActivity implements View.OnClickListener &#123;</span><br><span class="line"></span><br><span class="line">    private HandlerThread handlerThread;</span><br><span class="line">    Handler handler;</span><br><span class="line">    int count;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    protected void onCreate(Bundle savedInstanceState) &#123;</span><br><span class="line">        super.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">        Button start = findViewById(R.id.id_btn_begin);</span><br><span class="line">        start.setOnClickListener(this);</span><br><span class="line">        Button send = findViewById(R.id.id_btn_send);</span><br><span class="line">        send.setOnClickListener(this);</span><br><span class="line">        Button finish = findViewById(R.id.id_btn_finish);</span><br><span class="line">        finish.setOnClickListener(this);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 创建HandlerThread子线程和Handler消息处理器</span><br><span class="line">    public void startThread() &#123;</span><br><span class="line">        count = 0;</span><br><span class="line">        handlerThread = new HandlerThread(&quot;my-thread&quot;) &#123;</span><br><span class="line">            @Override</span><br><span class="line">            protected void onLooperPrepared() &#123;</span><br><span class="line">                super.onLooperPrepared();</span><br><span class="line">                Log.e(&quot;lianwenhong&quot;, &quot; &gt;&gt;&gt; onLooperPrepared &lt;&lt;&lt; &quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">        handlerThread.start();// 必须先执行start()之后再来执行handlerThread.getLooper();，否则得到的Looper对象永远是null</span><br><span class="line">        // 创建handler时传入HandlerThread的Looper对象，后续通过这个handler对象发送的消息都会被放在handlerThread线程中执行</span><br><span class="line">        handler = new Handler(handlerThread.getLooper()) &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void handleMessage(@NonNull Message msg) &#123;</span><br><span class="line">                super.handleMessage(msg);</span><br><span class="line">                switch (msg.what) &#123;</span><br><span class="line">                    case 1:</span><br><span class="line">                        Log.e(&quot;lianwenhong&quot;, &quot; &gt;&gt;&gt; handle 1&quot;);</span><br><span class="line">                        break;</span><br><span class="line">                    case 2:</span><br><span class="line">                        Log.e(&quot;lianwenhong&quot;, &quot; &gt;&gt;&gt; handle 2&quot;);</span><br><span class="line">                        break;</span><br><span class="line">                    default:</span><br><span class="line">                        Log.e(&quot;lianwenhong&quot;, &quot; &gt;&gt;&gt; handle default&quot;);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 当有需要在子线程中处理的逻辑就通过消息发送给子线程，此时消息会进入HanderThread线程中的消息队列</span><br><span class="line">    public void sendMessage() &#123;</span><br><span class="line">        Message msg1 = handler.obtainMessage(++count);</span><br><span class="line">        handler.sendMessage(msg1);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void finishThread() &#123;</span><br><span class="line">        handlerThread.quit();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onClick(View v) &#123;</span><br><span class="line">        switch (v.getId()) &#123;</span><br><span class="line">            case R.id.id_btn_begin:</span><br><span class="line">                startThread();</span><br><span class="line">                break;</span><br><span class="line">            case R.id.id_btn_send:</span><br><span class="line">                sendMessage();</span><br><span class="line">                break;</span><br><span class="line">            case R.id.id_btn_finish:</span><br><span class="line">                finishThread();</span><br><span class="line">                break;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上是HanderThread的使用方式：</p>
+<ol>
+<li>创建一个HandlerThread对象，并且开启它。</li>
+<li>创建一个Handler，给Handler传入HandlerThread的Looper对象，复写handleMessage方法</li>
+<li>向2中的Handler对象发送Message时，该消息对应的事件会在HandlerThread线程中执行。</li>
+</ol>
+<h3 id="HandlerThread原理"><a href="#HandlerThread原理" class="headerlink" title="HandlerThread原理"></a>HandlerThread原理</h3><p>handlerThread原理不难，总的代码也才100多行，咱们来撸一遍：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class HandlerThread extends Thread &#123;</span><br><span class="line">    int mPriority;</span><br><span class="line">    int mTid = -1;</span><br><span class="line">    Looper mLooper;</span><br><span class="line">    private @Nullable</span><br><span class="line">    Handler mHandler;</span><br><span class="line"></span><br><span class="line">    public HandlerThread(String name) &#123;</span><br><span class="line">        super(name);</span><br><span class="line">        mPriority = Process.THREAD_PRIORITY_DEFAULT;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 没什么特别，只是设置了一下线程的优先级为默认优先级</span><br><span class="line">     */</span><br><span class="line">    public HandlerThread(String name, int priority) &#123;</span><br><span class="line">        super(name);</span><br><span class="line">        mPriority = priority;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 这是一个回调表示该线程的Looper已经准备就绪，此时开发者可以在收到这个回调时做一些初始化工作</span><br><span class="line">     */</span><br><span class="line">    protected void onLooperPrepared() &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void run() &#123;</span><br><span class="line">        mTid = Process.myTid();</span><br><span class="line">        Looper.prepare();</span><br><span class="line">        // 此处使用synchronized加锁是确保调用线程执行handlerThread.getLooper()获取mLooper对象时mLooper已经被正确赋值了</span><br><span class="line">        synchronized (this) &#123;</span><br><span class="line">            mLooper = Looper.myLooper();</span><br><span class="line">            notifyAll();</span><br><span class="line">        &#125;</span><br><span class="line">        Process.setThreadPriority(mPriority);</span><br><span class="line">        onLooperPrepared();</span><br><span class="line">        Looper.loop();</span><br><span class="line">        mTid = -1;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 返回handlerThread所关联的Looper，如果handlerThread线程已经死亡则返回null</span><br><span class="line">     * 如果handlerThread线程未执行过start()方法的话就会阻塞调用线程</span><br><span class="line">     *</span><br><span class="line">     * @return The looper.</span><br><span class="line">     */</span><br><span class="line">    public Looper getLooper() &#123;</span><br><span class="line">        // 如果handlerThread线程未启动或已经死亡，则返回null</span><br><span class="line">        if (!isAlive()) &#123;</span><br><span class="line">            return null;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        boolean wasInterrupted = false;</span><br><span class="line"></span><br><span class="line">        // If the thread has been started, wait until the looper has been created.</span><br><span class="line">        // 获取Looper时首先要确保线程已经启动并且mLooper已经赋值成功，否则将会返回null导致传递给Handler时会抛出java.lang.NullPointerException:</span><br><span class="line">        // Attempt to read from field &#x27;android.os.MessageQueue android.os.Looper.mQueue&#x27; on a null object reference异常</span><br><span class="line">        synchronized (this) &#123;</span><br><span class="line">            while (isAlive() &amp;&amp; mLooper == null) &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    // 调用线程与handlerThread并不处于同一个线程，所以并不能保证当执行handlerThread.getLooper时handlerThread线程中mLooper已经赋值完毕。</span><br><span class="line">                    // 所以如果mLooper还未赋值成功时就执行wait()阻塞调用线程并释放锁对象，直到handlerThread线程获取到执行权并且对mLooper赋值完成之后handlerThread线程</span><br><span class="line">                    // 会通过notifyAll()来通知正在wait()的调用线程，此时调用线程就可以得到正确的mLooper对象而不是空</span><br><span class="line">                    wait();</span><br><span class="line">                &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                    wasInterrupted = true;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        /*</span><br><span class="line">         * 如果线程还未来得及被notify就收到了中断请求则直接中断调用线程</span><br><span class="line">         */</span><br><span class="line">        if (wasInterrupted) &#123;</span><br><span class="line">            Thread.currentThread().interrupt();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return mLooper;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @NonNull</span><br><span class="line">    public Handler getThreadHandler() &#123;</span><br><span class="line">        if (mHandler == null) &#123;</span><br><span class="line">            mHandler = new Handler(getLooper());</span><br><span class="line">        &#125;</span><br><span class="line">        return mHandler;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 退出Looper消息循环</span><br><span class="line">     * 如果队列中还有未执行的消息，那么不管是延时还是非延时的消息统一抛弃并停止Looper消息循环</span><br><span class="line">     */</span><br><span class="line">    public boolean quit() &#123;</span><br><span class="line">        Looper looper = getLooper();</span><br><span class="line">        if (looper != null) &#123;</span><br><span class="line">            looper.quit();</span><br><span class="line">            return true;</span><br><span class="line">        &#125;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 退出Looper消息循环</span><br><span class="line">     * 如果队列中还有延时任务未执行则将延时任务全部清除，也就是说延时任务直接被抛弃得不到执行</span><br><span class="line">     * 如果队列中还有非延时任务未执行则会一直等到所有非延时任务都得到执行之后才真正停止Looper消息循环</span><br><span class="line">     *</span><br><span class="line">     * @return True if the looper looper has been asked to quit or false if the</span><br><span class="line">     * thread had not yet started running.</span><br><span class="line">     */</span><br><span class="line">    public boolean quitSafely() &#123;</span><br><span class="line">        Looper looper = getLooper();</span><br><span class="line">        if (looper != null) &#123;</span><br><span class="line">            looper.quitSafely();</span><br><span class="line">            return true;</span><br><span class="line">        &#125;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 返回线程id</span><br><span class="line">     */</span><br><span class="line">    public int getThreadId() &#123;</span><br><span class="line">        return mTid;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面代码中的注释已经很详细的说明了HandlerThread的原理，结合它的使用方式看源码应该是一目了然了。</p>
+<h4 id="有几个点需要强调的："><a href="#有几个点需要强调的：" class="headerlink" title="有几个点需要强调的："></a>有几个点需要强调的：</h4><ol>
+<li>必须先调用HandlerThread.start()再去获取HandlerThread线程所关联的Looper对象(getLooper())，否则在未调用HandlerThread.start()之前调用HandlerThread.getLooper()得到的永远是null</li>
+<li>从run()和getLooper()方法中的synchronized逻辑可以看出来，调用线程在执行HandlerThread.getLooper()时有可能会发生阻塞，不过这个阻塞时长应该很短，只需了解这一点就行。阻塞是因为如果是HandlerThread线程run()方法还没执行到synchronized代码块时HandlerThread线程就失去cpu执行权那么假设此时cpu执行权被调用线程拿到并且执行到HandlerThread.getLooper()中的同步代码块，那么调用线程将被阻塞知道run()中同步代码块执行完毕。</li>
+<li>因为Looper消息队列是串行一条一条执行的，所以太过耗时的消息势必会影响后续的消息处理（假设加入队列的消息有A、B两个，A消息历时10s才完成那么B消息得到执行必然是在10s之后）。这点在业务开发中要自行斟酌，例如网络请求是一种不可预测的大耗时操作，不建议放在HandlerThread中来执行，而简单的文件读写一般是毫秒级的，可以放在HandlerThraed中。其实不光是HandlerThread有这个问题，任何消息单任务执行的队列都有这个问题。</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Android序列化之Parcel</title>
     <url>/2022/06/08/Android%E5%BA%8F%E5%88%97%E5%8C%96%E4%B9%8BParcel/</url>
     <content><![CDATA[<p>Android操作系统的底层数据传输形式是简单的字节序列形式进行传递。用通俗的话说就是系统不认识对象，只认识字节序列。而我们为了达到通信或者存储的目的，需要先将数据序列化传递，要使用时再进行反序列化还原。</p>
@@ -96,6 +129,12 @@
 <p><strong>IBinder对象：</strong> 通过调用Parcel-&gt;writeStrongBinder()，经由kernel binder驱动专门处理来完成IBinder传递。目标进程收到的是IBinder对象的代理。</p>
 </blockquote>
 ]]></content>
+      <categories>
+        <category>Android</category>
+      </categories>
+      <tags>
+        <tag>binder</tag>
+      </tags>
   </entry>
   <entry>
     <title>Android源码解析-App的ClassLoader</title>
@@ -455,81 +494,6 @@
       </tags>
   </entry>
   <entry>
-    <title>java类加载原理(ClassLoader工作原理)</title>
-    <url>/2022/04/16/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%8E%9F%E7%90%86-ClassLoader%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/</url>
-    <content><![CDATA[<h2 id="什么是类加载"><a href="#什么是类加载" class="headerlink" title="什么是类加载"></a>什么是类加载</h2><p>在java开发中我们在.java文件中编写代码，之后通过javac指令编译成.class文件。当然如果是编写的Android应用后续又会经过dx工具将.class变为.dex文件(这不是本章重点)。</p>
-<p>当javac编译成.class文件之后，它是以文件的形式存在的。比如MainActivity.java -&gt; javac -&gt; MainActivity.class。当我们程序中要使用MainActivity的时候，肯定要将这个文件加载到内存中来变成一个类对象这样才能去使用它。</p>
-<span id="more"></span>
-
-<img src="/2022/04/16/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%8E%9F%E7%90%86-ClassLoader%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%8E%9F%E7%90%86.png" class="" title="类加载原理">
-
-<p><strong>具体来说类加载就是将类的.class文件转为二进制数据读取到虚拟机内存的方法区中，当对象实例进行创建的时候会在堆内存中创建这个类的class对象，用来封装类在方法区中的数据结构。</strong></p>
-<p><strong>类加载最终的产物就是这个类对应的Class对象，它封装了方法区中的类的数据结构，并向程序员提供了访问接口。</strong></p>
-<h2 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h2><p>java的类加载分为3个步骤：</p>
-<ol>
-<li>装载（Load)：查找并加载类的二进制字节码(.class)文件。</li>
-<li>链接（Link）</li>
-<li>初始化（Initialize）：<strong>对类的静态变量、静态代码块执行初始化操作</strong>。</li>
-</ol>
-<p>对于链接这一过程分为3个子过程：</p>
-<ol>
-<li>验证：确保被加载的类的正确性</li>
-<li>准备：为类的静态变量分配内存并初始化为默认值（这个初始化与初始化流程中的初始化不一样，这里是初始化为默认值，下一个流程中是初始化为指定值）</li>
-<li>解析：把类中的符号引用转换为直接引用</li>
-</ol>
-<img src="/2022/04/16/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%8E%9F%E7%90%86-ClassLoader%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B.jpg" class="" title="java类加载过程">
-
-<h4 id="思考1-为什么要有验证阶段？"><a href="#思考1-为什么要有验证阶段？" class="headerlink" title="思考1:为什么要有验证阶段？"></a>思考1:为什么要有验证阶段？</h4><p>由Java编译器编译生成的.class文件一定是符合JVM字节码格式的，由JVM加载并运行，为了避免人为写一个.class文件，用于恶意用途，就需要有验证，不符合格式的不让它继续运行，确保安全。</p>
-<h4 id="思考2-链接中的准备过程和初始化过程有什么区别？"><a href="#思考2-链接中的准备过程和初始化过程有什么区别？" class="headerlink" title="思考2:链接中的准备过程和初始化过程有什么区别？"></a>思考2:链接中的准备过程和初始化过程有什么区别？</h4><p>准备过程是初始化为默认值，而初始化过程是将变量赋予正确的值。</p>
-<h4 id="什么情况会导致类的初始化？"><a href="#什么情况会导致类的初始化？" class="headerlink" title="什么情况会导致类的初始化？"></a>什么情况会导致类的初始化？</h4><ul>
-<li>创建类实例时（也就是new）</li>
-<li>访问某个类或者接口的静态变量时（其实接口中的变量都是public final static的），或者是对该静态变量进行赋值时</li>
-<li>调用类的静态方法</li>
-<li>反射时（Class.forName(clzName)），这种情况下面会有说明</li>
-<li>初始化一个类的子类(会首先初始化其父类)</li>
-<li>JVM启动时表明的启动类，即文件名和类名相同的那个类</li>
-</ul>
-<h4 id="系统为我们提供了2种类加载方式："><a href="#系统为我们提供了2种类加载方式：" class="headerlink" title="系统为我们提供了2种类加载方式："></a>系统为我们提供了2种类加载方式：</h4><ul>
-<li>Class.forName(clzName)</li>
-<li>ClassLoader.loadClass(clzName)</li>
-</ul>
-<h4 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h4><p>类加载器是系统为我们提供的加载类的工具类，基类是ClassLoader，在Java中默认提供了：</p>
-<ul>
-<li>BootStrap:引导类加载器（启动类加载器）</li>
-<li>ExtClassLoader:拓展类加载器</li>
-<li>AppClassLoader：系统类加载器<br>除了这几个默认的之外我们也可以自定义一个类加载器去加载指定目录中的类。例如Android中定义了：</li>
-<li>BootClassLoader:加载AndroidFramework层class文件（Android系统类）</li>
-<li>BaseDexClassLoader(其子类有PathClassLoader、DexClassLoader用于加载指定目录虾的.dex文件中的class类)</li>
-</ul>
-<p><strong>归根结底其实类加载器就是一个加载类的工具，而不同类加载器的区别就是加载的类所处的目录不同而已</strong>，具体原因后续讲双亲委托机制时详述。</p>
-<h4 id="思考3-类加载也是类，那类加载器被谁加载？"><a href="#思考3-类加载也是类，那类加载器被谁加载？" class="headerlink" title="思考3:类加载也是类，那类加载器被谁加载？"></a>思考3:类加载也是类，那类加载器被谁加载？</h4><p>BootStrap不是java类，它是c&#x2F;c++写的，是jvm内核的组成部分，它主要用于加载jvm运行必须的类。而ExtClassLoader和AppClassLoadeer是java类，他们是被BootStrap所加载。BootStrap是无法被java程序直接引用的。</p>
-<h2 id="双亲委托机制"><a href="#双亲委托机制" class="headerlink" title="双亲委托机制"></a>双亲委托机制</h2><img src="/2022/04/16/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%8E%9F%E7%90%86-ClassLoader%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%89%98%E6%9C%BA%E5%88%B6.jpg" class="" title="双亲委托机制">
-
-<h4 id="类加载器的父子结构"><a href="#类加载器的父子结构" class="headerlink" title="类加载器的父子结构"></a>类加载器的父子结构</h4><p>jvm所有的类加载器都采用父子关系的树形结构进行组织（但是注意不是java语法上的父子关系，不是继承），它的原理是在实例化每个类加载器的时候都得为其指定一个父类加载器对象或者默认采用系统类加载器为其父类加载器。（类加载器中有一个parent属性，组织父子结构是通过为parent赋值来实现的）</p>
-<p>每个类加载器都有自己的加载区域，它只能在自己的加载区域中寻找类。</p>
-<h4 id="双亲委托机制工作原理"><a href="#双亲委托机制工作原理" class="headerlink" title="双亲委托机制工作原理"></a>双亲委托机制工作原理</h4><p><strong>当使用某个类加载器去加载一个类的时候，首先会委托给其父类去加载，当父类还有父类的时候会一层层向上委托直至没有父类。也就是说父类相对于子类来说具有绝对的优先加载权。因此，所有的类加载请求都应该被传递到顶层的引导类加载器中，如果父类加载器加载到类了那就直接返回该类，只有当父类加载器在它的加载区域中找不到所要加载的类时，才会把加载权再归还给子类去加载。</strong></p>
-<p>这就是大名鼎鼎的双亲委托机制。</p>
-<p>这么设计有什么好处呢？</p>
-<ol>
-<li>保证了同一个类不会被重复加载（不会被多个类加载器加载）</li>
-<li>保证了类加载的安全性（例如假如有人自己创建了一个java.lang.String类也无法替换掉系统中的java.lang.String类，因为类加载会最终委托到父类加载器中，所以系统中的java.lang.String一定是先被找到的）</li>
-</ol>
-<p><strong>类加载器加载一个类的时候会首先从缓存中找，如果找到了就直接返回类，如果没找到才会继续向上委托。当成功加载到某个类的时候，会将得到的Class对象缓存起来用于下次加载这个类的时候直接返回。</strong><br>不信可以看看java ClassLoader类的loadClass()实现：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">protected Class&lt;?&gt; loadClass(String name, boolean resolve)</span><br><span class="line">        throws ClassNotFoundException</span><br><span class="line">&#123;</span><br><span class="line">    synchronized (getClassLoadingLock(name)) &#123;</span><br><span class="line">        // First, check if the class has already been loaded</span><br><span class="line">        // 找缓存</span><br><span class="line">        Class&lt;?&gt; c = findLoadedClass(name);</span><br><span class="line">        // 缓存中没有，则开始双亲委托机制</span><br><span class="line">        if (c == null) &#123;</span><br><span class="line">            long t0 = System.nanoTime();</span><br><span class="line">            try &#123;</span><br><span class="line">                if (parent != null) &#123;</span><br><span class="line">                    // 从父类加载器加载</span><br><span class="line">                    c = parent.loadClass(name, false);</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    // 没有父说明这个已经是Bootstrap</span><br><span class="line">                    c = findBootstrapClassOrNull(name);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; catch (ClassNotFoundException e) &#123;</span><br><span class="line">                // ClassNotFoundException thrown if class not found</span><br><span class="line">                // from the non-null parent class loader</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            // 没有加载到，则在自己的区域中寻找类</span><br><span class="line">            if (c == null) &#123;</span><br><span class="line">                // If still not found, then invoke findClass in order</span><br><span class="line">                // to find the class.</span><br><span class="line">                long t1 = System.nanoTime();</span><br><span class="line">                c = findClass(name);</span><br><span class="line"></span><br><span class="line">                // this is the defining class loader; record the stats</span><br><span class="line">                sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);</span><br><span class="line">                sun.misc.PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);</span><br><span class="line">                sun.misc.PerfCounter.getFindClasses().increment();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        if (resolve) &#123;</span><br><span class="line">            resolveClass(c);</span><br><span class="line">        &#125;</span><br><span class="line">        return c;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="思考4-为什么静态元素和静态代码块在虚拟机种只会执行一次？"><a href="#思考4-为什么静态元素和静态代码块在虚拟机种只会执行一次？" class="headerlink" title="思考4:为什么静态元素和静态代码块在虚拟机种只会执行一次？"></a>思考4:为什么静态元素和静态代码块在虚拟机种只会执行一次？</h4><p>因为默认情况下赋值静态域的过程（初始化）或者是执行静态代码块是在类加载流程中执行的，而同一个类根据双亲委托机制只会被加载一次，如果第二次加载它会直接从缓存中取。当然如果你自己定义了一个类加载器再去手动加载它的话就另当别论了（假设加载类A，正常代码中类在AppClassLoader中被加载成功，此时你自定义一个类加载器并且它的加载区域中也有类A一样的class，并且把它的父类加载器设置成ExtClassLoader，那么肯定这时候通过自定义类加载器去加载那也能加载出一个类A，此时类A中的静态代码也会执行，<strong>但是，但是，但是这个但是很重要，但是此时加载出来的这俩类A不是同一个类</strong>）。</p>
-<h4 id="届定2个类是不是同一个类对象"><a href="#届定2个类是不是同一个类对象" class="headerlink" title="届定2个类是不是同一个类对象"></a>届定2个类是不是同一个类对象</h4><p><strong>这也就是思考4中的但是，2个类对象是否是同一个取决于：类的全类名、加载它的类加载器以及类加载器的实例这三个条件，这三个条件中只要有一个不相同，加载后生成的Class对象就不是同一个，最终生成的类的实例的类型也不相同。</strong></p>
-<p>所以即使是同一个类，用不同的类加载器去加载的话产生的对象也是不同的，不能进行互相赋值否则会出现类转换异常。</p>
-<h4 id="Class-forName-clzName-的原理"><a href="#Class-forName-clzName-的原理" class="headerlink" title="Class.forName(clzName)的原理"></a>Class.forName(clzName)的原理</h4><p>直接上代码：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public static Class&lt;?&gt; forName(String className)</span><br><span class="line">            throws ClassNotFoundException &#123;</span><br><span class="line">    Class&lt;?&gt; caller = Reflection.getCallerClass();</span><br><span class="line">    // 内部也是使用ClassLoader进行类加载，只是加载完成之后会自动执行初始化，同时forName0()的initialize参数决定</span><br><span class="line">    return forName0(className, true, ClassLoader.getClassLoader(caller), caller);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private static native Class&lt;?&gt; forName0(String name, boolean initialize,</span><br><span class="line">                                    ClassLoader loader,</span><br><span class="line">                                    Class&lt;?&gt; caller)</span><br><span class="line">throws ClassNotFoundException;</span><br></pre></td></tr></table></figure>
-<p>所以Class.forName(clzName)本质上也是通过ClassLoader.loadClass(clzName)进行类加载，只是它会执行初始化，而直接通过ClassLoader.loadClass(clzName) 加载的类只有达到上面说的几个条件才会执行初始化流程。</p>
-<p>下一章我们讲一下Android中的类加载器：<a href="http://lianwenhong.top/2022/04/14/Android%E6%BA%90%E7%A0%81%E5%B0%8F%E8%AE%B0-App%E7%9A%84ClassLoader/#more">Android源码解析-App的ClassLoader</a></p>
-]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-  </entry>
-  <entry>
     <title>binder（二）MMU内存管理单元浅析</title>
     <url>/2022/06/28/binder%EF%BC%88%E4%BA%8C%EF%BC%89MMU%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E5%8D%95%E5%85%83%E6%B5%85%E6%9E%90/</url>
     <content><![CDATA[<h2 id="什么是虚拟内存"><a href="#什么是虚拟内存" class="headerlink" title="什么是虚拟内存"></a>什么是虚拟内存</h2><p>在现代的操作系统中，当你对内存地址进行操作时其实操作的并不是物理内存地址，而是系统虚拟出来的一个虚拟内存地址。</p>
@@ -618,6 +582,81 @@
 <p>任何可以运行在jvm中的语言都能用来开发gradle插件，比如groovy最终编译产物也是.class文件</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1、aapt 打包资源文件 阶段</span><br><span class="line">2、aidl 转 java 文件 阶段</span><br><span class="line">3、Java 编译（Compilers）生成.class 文件 阶段</span><br><span class="line">4、dex（生成 dex 文件）阶段</span><br><span class="line">5、apkbuilder（生成未签名 apk）阶段</span><br><span class="line">6、Jarsigner（签名）阶段</span><br><span class="line">7、zipalign（对齐） 阶段</span><br><span class="line">[https://juejin.cn/post/6844903850453762055#heading-6](https://juejin.cn/post/6844903850453762055#heading-6)</span><br></pre></td></tr></table></figure>
 ]]></content>
+  </entry>
+  <entry>
+    <title>java类加载原理(ClassLoader工作原理)</title>
+    <url>/2022/04/16/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%8E%9F%E7%90%86-ClassLoader%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/</url>
+    <content><![CDATA[<h2 id="什么是类加载"><a href="#什么是类加载" class="headerlink" title="什么是类加载"></a>什么是类加载</h2><p>在java开发中我们在.java文件中编写代码，之后通过javac指令编译成.class文件。当然如果是编写的Android应用后续又会经过dx工具将.class变为.dex文件(这不是本章重点)。</p>
+<p>当javac编译成.class文件之后，它是以文件的形式存在的。比如MainActivity.java -&gt; javac -&gt; MainActivity.class。当我们程序中要使用MainActivity的时候，肯定要将这个文件加载到内存中来变成一个类对象这样才能去使用它。</p>
+<span id="more"></span>
+
+<img src="/2022/04/16/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%8E%9F%E7%90%86-ClassLoader%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%8E%9F%E7%90%86.png" class="" title="类加载原理">
+
+<p><strong>具体来说类加载就是将类的.class文件转为二进制数据读取到虚拟机内存的方法区中，当对象实例进行创建的时候会在堆内存中创建这个类的class对象，用来封装类在方法区中的数据结构。</strong></p>
+<p><strong>类加载最终的产物就是这个类对应的Class对象，它封装了方法区中的类的数据结构，并向程序员提供了访问接口。</strong></p>
+<h2 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h2><p>java的类加载分为3个步骤：</p>
+<ol>
+<li>装载（Load)：查找并加载类的二进制字节码(.class)文件。</li>
+<li>链接（Link）</li>
+<li>初始化（Initialize）：<strong>对类的静态变量、静态代码块执行初始化操作</strong>。</li>
+</ol>
+<p>对于链接这一过程分为3个子过程：</p>
+<ol>
+<li>验证：确保被加载的类的正确性</li>
+<li>准备：为类的静态变量分配内存并初始化为默认值（这个初始化与初始化流程中的初始化不一样，这里是初始化为默认值，下一个流程中是初始化为指定值）</li>
+<li>解析：把类中的符号引用转换为直接引用</li>
+</ol>
+<img src="/2022/04/16/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%8E%9F%E7%90%86-ClassLoader%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B.jpg" class="" title="java类加载过程">
+
+<h4 id="思考1-为什么要有验证阶段？"><a href="#思考1-为什么要有验证阶段？" class="headerlink" title="思考1:为什么要有验证阶段？"></a>思考1:为什么要有验证阶段？</h4><p>由Java编译器编译生成的.class文件一定是符合JVM字节码格式的，由JVM加载并运行，为了避免人为写一个.class文件，用于恶意用途，就需要有验证，不符合格式的不让它继续运行，确保安全。</p>
+<h4 id="思考2-链接中的准备过程和初始化过程有什么区别？"><a href="#思考2-链接中的准备过程和初始化过程有什么区别？" class="headerlink" title="思考2:链接中的准备过程和初始化过程有什么区别？"></a>思考2:链接中的准备过程和初始化过程有什么区别？</h4><p>准备过程是初始化为默认值，而初始化过程是将变量赋予正确的值。</p>
+<h4 id="什么情况会导致类的初始化？"><a href="#什么情况会导致类的初始化？" class="headerlink" title="什么情况会导致类的初始化？"></a>什么情况会导致类的初始化？</h4><ul>
+<li>创建类实例时（也就是new）</li>
+<li>访问某个类或者接口的静态变量时（其实接口中的变量都是public final static的），或者是对该静态变量进行赋值时</li>
+<li>调用类的静态方法</li>
+<li>反射时（Class.forName(clzName)），这种情况下面会有说明</li>
+<li>初始化一个类的子类(会首先初始化其父类)</li>
+<li>JVM启动时表明的启动类，即文件名和类名相同的那个类</li>
+</ul>
+<h4 id="系统为我们提供了2种类加载方式："><a href="#系统为我们提供了2种类加载方式：" class="headerlink" title="系统为我们提供了2种类加载方式："></a>系统为我们提供了2种类加载方式：</h4><ul>
+<li>Class.forName(clzName)</li>
+<li>ClassLoader.loadClass(clzName)</li>
+</ul>
+<h4 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h4><p>类加载器是系统为我们提供的加载类的工具类，基类是ClassLoader，在Java中默认提供了：</p>
+<ul>
+<li>BootStrap:引导类加载器（启动类加载器）</li>
+<li>ExtClassLoader:拓展类加载器</li>
+<li>AppClassLoader：系统类加载器<br>除了这几个默认的之外我们也可以自定义一个类加载器去加载指定目录中的类。例如Android中定义了：</li>
+<li>BootClassLoader:加载AndroidFramework层class文件（Android系统类）</li>
+<li>BaseDexClassLoader(其子类有PathClassLoader、DexClassLoader用于加载指定目录虾的.dex文件中的class类)</li>
+</ul>
+<p><strong>归根结底其实类加载器就是一个加载类的工具，而不同类加载器的区别就是加载的类所处的目录不同而已</strong>，具体原因后续讲双亲委托机制时详述。</p>
+<h4 id="思考3-类加载也是类，那类加载器被谁加载？"><a href="#思考3-类加载也是类，那类加载器被谁加载？" class="headerlink" title="思考3:类加载也是类，那类加载器被谁加载？"></a>思考3:类加载也是类，那类加载器被谁加载？</h4><p>BootStrap不是java类，它是c&#x2F;c++写的，是jvm内核的组成部分，它主要用于加载jvm运行必须的类。而ExtClassLoader和AppClassLoadeer是java类，他们是被BootStrap所加载。BootStrap是无法被java程序直接引用的。</p>
+<h2 id="双亲委托机制"><a href="#双亲委托机制" class="headerlink" title="双亲委托机制"></a>双亲委托机制</h2><img src="/2022/04/16/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%8E%9F%E7%90%86-ClassLoader%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%89%98%E6%9C%BA%E5%88%B6.jpg" class="" title="双亲委托机制">
+
+<h4 id="类加载器的父子结构"><a href="#类加载器的父子结构" class="headerlink" title="类加载器的父子结构"></a>类加载器的父子结构</h4><p>jvm所有的类加载器都采用父子关系的树形结构进行组织（但是注意不是java语法上的父子关系，不是继承），它的原理是在实例化每个类加载器的时候都得为其指定一个父类加载器对象或者默认采用系统类加载器为其父类加载器。（类加载器中有一个parent属性，组织父子结构是通过为parent赋值来实现的）</p>
+<p>每个类加载器都有自己的加载区域，它只能在自己的加载区域中寻找类。</p>
+<h4 id="双亲委托机制工作原理"><a href="#双亲委托机制工作原理" class="headerlink" title="双亲委托机制工作原理"></a>双亲委托机制工作原理</h4><p><strong>当使用某个类加载器去加载一个类的时候，首先会委托给其父类去加载，当父类还有父类的时候会一层层向上委托直至没有父类。也就是说父类相对于子类来说具有绝对的优先加载权。因此，所有的类加载请求都应该被传递到顶层的引导类加载器中，如果父类加载器加载到类了那就直接返回该类，只有当父类加载器在它的加载区域中找不到所要加载的类时，才会把加载权再归还给子类去加载。</strong></p>
+<p>这就是大名鼎鼎的双亲委托机制。</p>
+<p>这么设计有什么好处呢？</p>
+<ol>
+<li>保证了同一个类不会被重复加载（不会被多个类加载器加载）</li>
+<li>保证了类加载的安全性（例如假如有人自己创建了一个java.lang.String类也无法替换掉系统中的java.lang.String类，因为类加载会最终委托到父类加载器中，所以系统中的java.lang.String一定是先被找到的）</li>
+</ol>
+<p><strong>类加载器加载一个类的时候会首先从缓存中找，如果找到了就直接返回类，如果没找到才会继续向上委托。当成功加载到某个类的时候，会将得到的Class对象缓存起来用于下次加载这个类的时候直接返回。</strong><br>不信可以看看java ClassLoader类的loadClass()实现：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">protected Class&lt;?&gt; loadClass(String name, boolean resolve)</span><br><span class="line">        throws ClassNotFoundException</span><br><span class="line">&#123;</span><br><span class="line">    synchronized (getClassLoadingLock(name)) &#123;</span><br><span class="line">        // First, check if the class has already been loaded</span><br><span class="line">        // 找缓存</span><br><span class="line">        Class&lt;?&gt; c = findLoadedClass(name);</span><br><span class="line">        // 缓存中没有，则开始双亲委托机制</span><br><span class="line">        if (c == null) &#123;</span><br><span class="line">            long t0 = System.nanoTime();</span><br><span class="line">            try &#123;</span><br><span class="line">                if (parent != null) &#123;</span><br><span class="line">                    // 从父类加载器加载</span><br><span class="line">                    c = parent.loadClass(name, false);</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    // 没有父说明这个已经是Bootstrap</span><br><span class="line">                    c = findBootstrapClassOrNull(name);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; catch (ClassNotFoundException e) &#123;</span><br><span class="line">                // ClassNotFoundException thrown if class not found</span><br><span class="line">                // from the non-null parent class loader</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            // 没有加载到，则在自己的区域中寻找类</span><br><span class="line">            if (c == null) &#123;</span><br><span class="line">                // If still not found, then invoke findClass in order</span><br><span class="line">                // to find the class.</span><br><span class="line">                long t1 = System.nanoTime();</span><br><span class="line">                c = findClass(name);</span><br><span class="line"></span><br><span class="line">                // this is the defining class loader; record the stats</span><br><span class="line">                sun.misc.PerfCounter.getParentDelegationTime().addTime(t1 - t0);</span><br><span class="line">                sun.misc.PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);</span><br><span class="line">                sun.misc.PerfCounter.getFindClasses().increment();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        if (resolve) &#123;</span><br><span class="line">            resolveClass(c);</span><br><span class="line">        &#125;</span><br><span class="line">        return c;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="思考4-为什么静态元素和静态代码块在虚拟机种只会执行一次？"><a href="#思考4-为什么静态元素和静态代码块在虚拟机种只会执行一次？" class="headerlink" title="思考4:为什么静态元素和静态代码块在虚拟机种只会执行一次？"></a>思考4:为什么静态元素和静态代码块在虚拟机种只会执行一次？</h4><p>因为默认情况下赋值静态域的过程（初始化）或者是执行静态代码块是在类加载流程中执行的，而同一个类根据双亲委托机制只会被加载一次，如果第二次加载它会直接从缓存中取。当然如果你自己定义了一个类加载器再去手动加载它的话就另当别论了（假设加载类A，正常代码中类在AppClassLoader中被加载成功，此时你自定义一个类加载器并且它的加载区域中也有类A一样的class，并且把它的父类加载器设置成ExtClassLoader，那么肯定这时候通过自定义类加载器去加载那也能加载出一个类A，此时类A中的静态代码也会执行，<strong>但是，但是，但是这个但是很重要，但是此时加载出来的这俩类A不是同一个类</strong>）。</p>
+<h4 id="届定2个类是不是同一个类对象"><a href="#届定2个类是不是同一个类对象" class="headerlink" title="届定2个类是不是同一个类对象"></a>届定2个类是不是同一个类对象</h4><p><strong>这也就是思考4中的但是，2个类对象是否是同一个取决于：类的全类名、加载它的类加载器以及类加载器的实例这三个条件，这三个条件中只要有一个不相同，加载后生成的Class对象就不是同一个，最终生成的类的实例的类型也不相同。</strong></p>
+<p>所以即使是同一个类，用不同的类加载器去加载的话产生的对象也是不同的，不能进行互相赋值否则会出现类转换异常。</p>
+<h4 id="Class-forName-clzName-的原理"><a href="#Class-forName-clzName-的原理" class="headerlink" title="Class.forName(clzName)的原理"></a>Class.forName(clzName)的原理</h4><p>直接上代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public static Class&lt;?&gt; forName(String className)</span><br><span class="line">            throws ClassNotFoundException &#123;</span><br><span class="line">    Class&lt;?&gt; caller = Reflection.getCallerClass();</span><br><span class="line">    // 内部也是使用ClassLoader进行类加载，只是加载完成之后会自动执行初始化，同时forName0()的initialize参数决定</span><br><span class="line">    return forName0(className, true, ClassLoader.getClassLoader(caller), caller);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private static native Class&lt;?&gt; forName0(String name, boolean initialize,</span><br><span class="line">                                    ClassLoader loader,</span><br><span class="line">                                    Class&lt;?&gt; caller)</span><br><span class="line">throws ClassNotFoundException;</span><br></pre></td></tr></table></figure>
+<p>所以Class.forName(clzName)本质上也是通过ClassLoader.loadClass(clzName)进行类加载，只是它会执行初始化，而直接通过ClassLoader.loadClass(clzName) 加载的类只有达到上面说的几个条件才会执行初始化流程。</p>
+<p>下一章我们讲一下Android中的类加载器：<a href="http://lianwenhong.top/2022/04/14/Android%E6%BA%90%E7%A0%81%E5%B0%8F%E8%AE%B0-App%E7%9A%84ClassLoader/#more">Android源码解析-App的ClassLoader</a></p>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
   </entry>
   <entry>
     <title>最讨厌QA提按钮快速点击的bug了</title>
